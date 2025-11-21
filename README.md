@@ -6,8 +6,7 @@ A web application for generating celebratory limericks for FIRST LEGO League awa
 
 - **Award Selection**: Choose from required and optional FIRST LEGO League awards
 - **Team Information**: Enter team name and judge details
-- **AI-Powered Generation**: Uses GPT-5-mini via Vercel AI Gateway to create unique, celebratory limericks
-- **Fallback Mode**: Works offline with template limericks if API key is not configured
+- **AI-Powered Generation**: Uses GPT-4o-mini via Vercel AI Gateway to create unique, celebratory limericks
 - **Selection Interface**: Review and select the best limerick for presentation
 - **Responsive Design**: Works on desktop and mobile devices
 - **FLL Unearthed Theme**: Matches the official FIRST LEGO League Unearthed season branding
@@ -20,7 +19,7 @@ A web application for generating celebratory limericks for FIRST LEGO League awa
 - **Tailwind CSS** - Styling
 - **Radix UI** - Accessible component primitives
 - **Lucide React** - Icons
-- **Vercel AI Gateway** - Direct API access to GPT-5-mini for limerick generation
+- **Vercel AI Gateway** - Direct API access to GPT-4o-mini for limerick generation
 
 ## Getting Started
 
@@ -46,7 +45,7 @@ cp .env.example .env
 VITE_AI_GATEWAY_API_KEY=your_api_key_here
 ```
 
-**Note:** The app will work without an API key but will use fallback template limericks instead of AI-generated ones.
+**Note:** An API key is required for limerick generation. Without it, the app will display an error message.
 
 ### Development
 

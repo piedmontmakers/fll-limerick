@@ -64,9 +64,9 @@ ${details ? `Additional Details: ${details}` : ''}
 Generate exactly 3 different celebratory limericks for this team receiving this award. Each limerick should:
 1. Follow the AABBA rhyme scheme
 2. Be uplifting and celebratory
-3. Reference the award (you may use individual words from the team name if they fit naturally, but do NOT include the complete team name as-is)
+3. Capture the spirit and qualities described in the award (do NOT include the award name itself, and do NOT include the complete team name as-is, though individual words from the team name may be used if they fit naturally)
 4. Be appropriate for young students (ages 9-14)
-5. Capture the spirit of the award and what makes this team special
+5. Be creative and memorable
 
 Return ONLY the 3 limericks, with each limerick separated by a blank line. Do not include any other text, numbering, explanations, or "---" markers.`;
 
@@ -77,7 +77,7 @@ Return ONLY the 3 limericks, with each limerick separated by a blank line. Do no
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'openai/gpt-5-mini',
+        model: 'openai/gpt-4o-mini',
         messages: [
           {
             role: 'system',
@@ -89,7 +89,7 @@ Return ONLY the 3 limericks, with each limerick separated by a blank line. Do no
           }
         ],
         temperature: 0.9,
-        max_tokens: 1000
+        max_tokens: 4000
       }),
     });
 
@@ -98,25 +98,8 @@ Return ONLY the 3 limericks, with each limerick separated by a blank line. Do no
       throw new Error(errorData.error?.message || 'Failed to generate limericks');
     }
 
-    // Get raw response text for debugging
-    const rawText = await response.text();
-    console.log('Raw Response:', rawText);
-
-    const data = JSON.parse(rawText);
-    console.log('API Response:', data);
-    console.log('Reasoning Details:', data.choices?.[0]?.message?.reasoning_details);
-
-    // Check if content is in reasoning_details
-    const reasoningDetails = data.choices?.[0]?.message?.reasoning_details;
-    let responseText = data.choices[0]?.message?.content || '';
-
-    // If content is empty but reasoning_details exists, try to get content from there
-    if (!responseText && reasoningDetails && reasoningDetails.length > 0) {
-      console.log('Trying to extract from reasoning_details:', reasoningDetails[0]);
-      responseText = reasoningDetails[0]?.content || '';
-    }
-
-    console.log('Response Text:', responseText);
+    const data = await response.json();
+    const responseText = data.choices[0]?.message?.content || '';
 
     // Remove any trailing "---" markers
     const cleanedText = responseText.replace(/---+\s*$/g, '').trim();
@@ -126,8 +109,6 @@ Return ONLY the 3 limericks, with each limerick separated by a blank line. Do no
       .split(/\n\s*\n/)
       .map((l: string) => l.trim())
       .filter((l: string) => l.length > 0 && !l.match(/^---+$/));
-
-    console.log('Parsed Limericks:', limericks);
 
     if (limericks.length === 0) {
       throw new Error('No limericks were generated');

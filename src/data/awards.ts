@@ -1,7 +1,7 @@
 export interface Award {
   id: string;
   name: string;
-  category: 'required' | 'optional';
+  category: 'required' | 'optional' | 'fun';
   allocation: string;
   description: string;
 }
@@ -86,5 +86,49 @@ export const awards: Award[] = [
     category: 'optional',
     allocation: 'Up to 3 winners',
     description: 'This award celebrates a team that has been nominated by their peers for their expression of Core Values and Gracious Professionalism.'
+  },
+
+  // Fun Awards
+  {
+    id: 'best-costume',
+    name: 'Best Costume',
+    category: 'fun',
+    allocation: '1 team',
+    description: "This team wow'd their peers with their creative and unique costume; bringing spirit to their team and the event."
+  },
+  {
+    id: 'best-team-name',
+    name: 'Best Team Name',
+    category: 'fun',
+    allocation: '1 team',
+    description: 'FIRST encourages creativity and that starts with the team name. This team was nominated by their peers to have the best & most unique team name this season.'
+  },
+  {
+    id: 'gracious-professionalism',
+    name: 'Gracious Professionalism',
+    category: 'fun',
+    allocation: '1 team',
+    description: 'The Gracious Professionalism Award celebrates the team who went out of their way to help another team/individual to make their day great.'
+  },
+  {
+    id: 'kids-choice-innovation',
+    name: "Kid's Choice - Innovation",
+    category: 'fun',
+    allocation: '1 team',
+    description: "This team inspired their peers with their creative and clever Innovation Project. It's one thing to be selected by the judges, but a whole other level to be admired by your peers. Great work!"
+  },
+  {
+    id: 'kids-choice-robot-design',
+    name: "Kid's Choice - Robot Design",
+    category: 'fun',
+    allocation: '1 team',
+    description: "This team inspired their peers with their creative and clever Robot Design. It's one thing to be selected by the judges, but a whole other level to be admired by your peers. Great work!"
+  },
+  {
+    id: 'best-song-cheer',
+    name: 'Best Song/Cheer',
+    category: 'fun',
+    allocation: '1 team',
+    description: 'This team stood out for their Team Cheer. Their energy was palpable and brought excitement to the day.'
   }
 ];

@@ -102,6 +102,14 @@ src/
 - Motivate Award
 - Peer Award
 
+### Fun Awards
+- Best Costume
+- Best Team Name
+- Gracious Professionalism
+- Kid's Choice - Innovation
+- Kid's Choice - Robot Design
+- Best Song/Cheer
+
 ## Future Enhancements
 
 - Export limericks to PDF

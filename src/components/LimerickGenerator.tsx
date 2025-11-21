@@ -157,6 +157,17 @@ Return ONLY the 3 limericks, with each limerick separated by a blank line. Do no
                       {award.name}
                     </SelectItem>
                   ))}
+
+                <div className="px-2 py-1.5 font-semibold text-sm text-gray-500 mt-2">
+                  Fun Awards
+                </div>
+                {awards
+                  .filter(a => a.category === 'fun')
+                  .map(award => (
+                    <SelectItem key={award.id} value={award.id}>
+                      {award.name}
+                    </SelectItem>
+                  ))}
               </SelectContent>
             </Select>
 

@@ -9,6 +9,7 @@ import { Badge } from './ui/badge';
 import { Sparkles, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { awards } from '../data/awards';
 
+// Main component for generating celebratory limericks for FLL awards
 export function LimerickGenerator() {
   const [selectedAward, setSelectedAward] = useState('');
   const [teamName, setTeamName] = useState('');

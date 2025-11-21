@@ -76,7 +76,7 @@ Return ONLY the 3 limericks, with each limerick separated by a blank line. Do no
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'openai/gpt-4o-mini',
+        model: 'openai/gpt-5-mini',
         messages: [
           {
             role: 'system',

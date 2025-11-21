@@ -1,5 +1,6 @@
 import { LimerickGenerator } from './components/LimerickGenerator';
 
+// Main application component with FLL Unearthed theme
 export default function App() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#FBF3ED' }}>

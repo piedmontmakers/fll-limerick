@@ -123,8 +123,8 @@ Return ONLY the 3 limericks, with each limerick separated by a blank line. Do no
     // Split by double newlines (paragraph breaks) to separate limericks
     const limericks = cleanedText
       .split(/\n\s*\n/)
-      .map(l => l.trim())
-      .filter(l => l.length > 0 && !l.match(/^---+$/));
+      .map((l: string) => l.trim())
+      .filter((l: string) => l.length > 0 && !l.match(/^---+$/));
 
     console.log('Parsed Limericks:', limericks);
 
@@ -133,29 +133,6 @@ Return ONLY the 3 limericks, with each limerick separated by a blank line. Do no
     }
 
     return limericks;
-  };
-
-  const generateMockLimericks = (awardName: string, team: string) => {
-    // Fallback limericks when API is unavailable
-    return [
-      `Team ${team} with skills so bright,
-Their ${awardName.toLowerCase()} shines in the light,
-With robots that soar,
-They always score more,
-Their future looks wonderfully bright!`,
-
-      `In the challenge they found their way,
-${team} improved every day,
-With ${awardName.toLowerCase()} earned,
-From all that they learned,
-Their excellence here is on display!`,
-
-      `The judges have chosen with care,
-${team}'s talent beyond compare,
-For ${awardName.toLowerCase()} they're crowned,
-Their brilliance profound,
-A team that shows how much they care!`
-    ];
   };
 
   const selectedAwardData = awards.find(a => a.id === selectedAward);

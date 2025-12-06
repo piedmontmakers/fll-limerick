@@ -25,22 +25,37 @@ export function LimerickGenerator() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [teamsLoading, setTeamsLoading] = useState(false);
   const [teamsError, setTeamsError] = useState<string | null>(null);
+  const [teamsLastUpdated, setTeamsLastUpdated] = useState<Date | null>(null);
 
   const googleSheetId = import.meta.env.VITE_GOOGLE_SHEET_ID;
   const hasTeamList = Boolean(googleSheetId);
 
-  // Fetch teams from Google Sheet on mount
+  // Fetch teams from Google Sheet on mount and refresh every 10 minutes
   useEffect(() => {
     if (!googleSheetId) return;
 
-    setTeamsLoading(true);
-    fetchTeamsFromSheet(googleSheetId)
-      .then(setTeams)
-      .catch((err) => {
-        console.error('Failed to fetch teams:', err);
-        setTeamsError('Failed to load team list');
-      })
-      .finally(() => setTeamsLoading(false));
+    const loadTeams = () => {
+      setTeamsLoading(true);
+      fetchTeamsFromSheet(googleSheetId)
+        .then((fetchedTeams) => {
+          setTeams(fetchedTeams);
+          setTeamsLastUpdated(new Date());
+          setTeamsError(null);
+        })
+        .catch((err) => {
+          console.error('Failed to fetch teams:', err);
+          setTeamsError('Failed to load team list');
+        })
+        .finally(() => setTeamsLoading(false));
+    };
+
+    // Initial load
+    loadTeams();
+
+    // Refresh every 10 minutes
+    const intervalId = setInterval(loadTeams, 10 * 60 * 1000);
+
+    return () => clearInterval(intervalId);
   }, [googleSheetId]);
 
   // Get the effective team name for limerick generation
@@ -368,6 +383,25 @@ Return ONLY the 3 limericks, with each limerick separated by a blank line. Do no
             )}
           </CardContent>
         </Card>
+      )}
+
+      {/* Footer Stats */}
+      {hasTeamList && (
+        <div className="mt-6 bg-white rounded-lg shadow p-4 text-center text-gray-600">
+          <p>
+            Total Teams: {teams.length}
+            {teamsLastUpdated && (
+              <span className="ml-2">
+                | Last Updated: {teamsLastUpdated.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+              </span>
+            )}
+            {teamsError && (
+              <span className="ml-2 text-red-600 font-semibold">
+                | {teamsError}
+              </span>
+            )}
+          </p>
+        </div>
       )}
     </div>
   );

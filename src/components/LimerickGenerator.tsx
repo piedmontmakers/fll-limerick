@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Label } from './ui/label';
 import { Input } from './ui/input';
@@ -8,23 +8,69 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Badge } from './ui/badge';
 import { Sparkles, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { awards } from '../data/awards';
+import { fetchTeamsFromSheet, Team } from '../lib/teams';
 
 // Main component for generating celebratory limericks for FLL awards
 export function LimerickGenerator() {
   const [selectedAward, setSelectedAward] = useState('');
-  const [teamName, setTeamName] = useState('');
+  const [selectedTeam, setSelectedTeam] = useState('');
+  const [teamNameInput, setTeamNameInput] = useState('');
   const [judgeDetails, setJudgeDetails] = useState('');
   const [limericks, setLimericks] = useState<string[]>([]);
   const [selectedLimerick, setSelectedLimerick] = useState<number | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Team list from Google Sheet
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [teamsLoading, setTeamsLoading] = useState(false);
+  const [teamsError, setTeamsError] = useState<string | null>(null);
+
+  const googleSheetId = import.meta.env.VITE_GOOGLE_SHEET_ID;
+  const hasTeamList = Boolean(googleSheetId);
+
+  // Fetch teams from Google Sheet on mount
+  useEffect(() => {
+    if (!googleSheetId) return;
+
+    setTeamsLoading(true);
+    fetchTeamsFromSheet(googleSheetId)
+      .then(setTeams)
+      .catch((err) => {
+        console.error('Failed to fetch teams:', err);
+        setTeamsError('Failed to load team list');
+      })
+      .finally(() => setTeamsLoading(false));
+  }, [googleSheetId]);
+
+  // Get the effective team name for limerick generation
+  const getEffectiveTeamName = (): string => {
+    if (selectedTeam && selectedTeam !== 'none') {
+      const team = teams.find(t => t.teamNumber === selectedTeam);
+      return team?.teamName || '';
+    }
+    return teamNameInput;
+  };
+
+  // Validate that either dropdown or text input has a value
+  const hasValidTeamSelection = (): boolean => {
+    if (hasTeamList) {
+      // If "none" selected or no selection, require manual team name input
+      if (!selectedTeam || selectedTeam === 'none') {
+        return Boolean(teamNameInput.trim());
+      }
+      return true;
+    }
+    return Boolean(teamNameInput.trim());
+  };
+
   const handleGenerate = async () => {
-    if (!selectedAward || !teamName) {
-      alert('Please select an award and enter a team name');
+    if (!selectedAward || !hasValidTeamSelection()) {
+      alert('Please select an award and select or enter a team name');
       return;
     }
 
+    const teamName = getEffectiveTeamName();
     setIsGenerating(true);
     setSelectedLimerick(null);
     setError(null);
@@ -64,9 +110,11 @@ ${details ? `Additional Details: ${details}` : ''}
 Generate exactly 3 different celebratory limericks for this team receiving this award. Each limerick should:
 1. Follow the AABBA rhyme scheme
 2. Be uplifting and celebratory
-3. Capture the spirit and qualities described in the award (do NOT include the award name itself, and do NOT include the complete team name as-is, though individual words from the team name may be used if they fit naturally)
+3. Capture the spirit and qualities described in the award (do NOT include the award name itself)
 4. Be appropriate for young students (ages 9-14)
 5. Be creative and memorable
+
+IMPORTANT: Do NOT include the full team name in the limerick. However, you MUST include some aspect or individual word from the team name in line 5 (the last line) of each limerick. NEVER use the complete team name as-is and NEVER use team name words in lines 1-4.
 
 Return ONLY the 3 limericks, with each limerick separated by a blank line. Do not include any other text, numbering, explanations, or "---" markers.`;
 
@@ -180,12 +228,57 @@ Return ONLY the 3 limericks, with each limerick separated by a blank line. Do no
 
           <div className="space-y-2">
             <Label htmlFor="teamName">Team Name</Label>
+
+            {hasTeamList && (
+              <div className="space-y-3">
+                <Select
+                  value={selectedTeam}
+                  onValueChange={(value) => {
+                    setSelectedTeam(value);
+                    if (value && value !== 'none') setTeamNameInput('');
+                  }}
+                  disabled={teamsLoading}
+                >
+                  <SelectTrigger id="teamSelect">
+                    <SelectValue placeholder={teamsLoading ? "Loading teams..." : "Select a team from the list"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">-- None --</SelectItem>
+                    {teams.map(team => (
+                      <SelectItem key={team.teamNumber} value={team.teamNumber}>
+                        {team.displayName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {teamsError && (
+                  <p className="text-xs" style={{ color: '#DC2626' }}>{teamsError}</p>
+                )}
+
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 h-px bg-gray-300" />
+                  <span className="text-xs text-gray-500">or enter manually</span>
+                  <div className="flex-1 h-px bg-gray-300" />
+                </div>
+              </div>
+            )}
+
             <Input
               id="teamName"
               placeholder="Enter team name"
-              value={teamName}
-              onChange={(e) => setTeamName(e.target.value)}
+              value={teamNameInput}
+              onChange={(e) => {
+                setTeamNameInput(e.target.value);
+                if (e.target.value) setSelectedTeam('');
+              }}
             />
+
+            {hasTeamList && !selectedTeam && !teamNameInput && (
+              <p className="text-xs" style={{ color: '#6B7280' }}>
+                Select a team from the dropdown or enter a team name manually
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -201,7 +294,7 @@ Return ONLY the 3 limericks, with each limerick separated by a blank line. Do no
 
           <Button
             onClick={handleGenerate}
-            disabled={isGenerating || !selectedAward || !teamName}
+            disabled={isGenerating || !selectedAward || !hasValidTeamSelection()}
             className="w-full"
             style={{ backgroundColor: '#F26A21' }}
           >
